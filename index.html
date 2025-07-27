@@ -41,11 +41,12 @@
 <script>
     window.Telegram.WebApp.requestFullscreen()
 </script>
-
-<div id="container" style="margin-top: var(--tg-content-safe-area-inset-top);">
-    <p id="nameAnime"></p>
+<div>
+    <h1 id="nameAnime"></h1>
     <p id="nameTr"></p>
     <p id="serNum"></p>
+</div>
+<div id="container" style="margin-top: var(--tg-content-safe-area-inset-top);">
     <video controls crossorigin playsinline id="player">
         <source id="srAddLink" type="video/mp4" size="720"/>
     </video>
@@ -66,15 +67,15 @@
         nameAnime.innerText = qs['nameAnime']
 
         let nameTr = document.getElementById('nameTr')
-        nameTr.innerText = qs['nameTr']
+        nameTr.innerText = 'Озвучка: ' + qs['nameTr']
 
         let serNum = document.getElementById('serNum')
-        serNum.innerText = qs['serNum']
+        serNum.innerText = qs['serNum'] + ' серия'
     </script>
 </div>
 <div>
     <h1>Info</h1>
-    <p>Version: 0.92</p>
+    <p>Version: 0.93</p>
     <p>двойным нажатием на плеер откроеться полно экранный режим</p>
 </div>
 <!--<div>-->
