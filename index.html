@@ -35,22 +35,6 @@
 
             return assoc;
         }
-    </script>
-</head>
-<body>
-<script>
-    window.Telegram.WebApp.requestFullscreen()
-</script>
-<div>
-    <h1 id="nameAnime"></h1>
-    <p id="nameTr"></p>
-    <p id="serNum"></p>
-</div>
-<div id="container" style="margin-top: var(--tg-content-safe-area-inset-top);">
-    <video controls crossorigin playsinline id="player">
-        <source id="srAddLink" type="video/mp4" size="720"/>
-    </video>
-    <script>
         function addStylePl(){
             let st = "margin-top: var(--tg-content-safe-area-inset-top); margin-left: var(--tg-content-safe-area-inset-left); margin-bottom: var(--tg-content-safe-area-inset-bottom); margin-right: var(--tg-content-safe-area-inset-right);"
             document.getElementById('player').setAttribute('style',st)
@@ -58,26 +42,30 @@
         function remStylePl(){
             document.getElementById('player').removeAttribute('style')
         }
-
-
-        var qs = getQueryStrings();
-        document.getElementById('srAddLink').setAttribute('src',qs['link'])
-
-        let nameAnime = document.getElementById('nameAnime')
-        nameAnime.innerText = qs['nameAnime']
-
-        let nameTr = document.getElementById('nameTr')
-        nameTr.innerText = 'Озвучка: ' + qs['nameTr']
-
-        let serNum = document.getElementById('serNum')
-        serNum.innerText = qs['serNum'] + ' серия'
     </script>
+</head>
+<body>
+<script>
+    window.Telegram.WebApp.requestFullscreen()
+</script>
+<div  style="margin-top: var(--tg-content-safe-area-inset-top);"></div>
+<div id="container">
+    <video controls crossorigin playsinline id="player">
+        <source id="srAddLink" type="video/mp4" size="720"/>
+    </video>
+</div>
+<div>
+
 </div>
 <div>
     <h1>Info</h1>
-    <p>Version: 0.93</p>
+    <p id="nameAnime" style="margin-bottom:0px"></p>
+    <p id="nameTr" style="margin-bottom:0px"></p>
+    <p id="serNum" style="margin-bottom:0px"></p>
+    <p>Version: 0.96</p>
     <p>двойным нажатием на плеер откроеться полно экранный режим</p>
 </div>
+
 <!--<div>-->
 <!--    <button class="button js-shr" onclick="addStylePl()">-->
 <!--        Добавить отступы в плеере-->
@@ -97,6 +85,20 @@
 
 
 
+
+<script>
+        var qs = getQueryStrings();
+        document.getElementById('srAddLink').setAttribute('src',qs['link'])
+
+        let nameAnime = document.getElementById('nameAnime')
+        nameAnime.innerText = qs['nameAnime']
+
+        let nameTr = document.getElementById('nameTr')
+        nameTr.innerText = 'Озвучка: ' + qs['nameTr']
+
+        let serNum = document.getElementById('serNum')
+        serNum.innerText = qs['serNum'] + ' серия'
+</script>
 <script src="https://cdn.plyr.io/3.7.8/demo.js" crossorigin="anonymous"></script>
 </body>
 </html>
