@@ -62,7 +62,7 @@
     <p id="nameAnime" style="margin-bottom:0px"></p>
     <p id="nameTr" style="margin-bottom:0px"></p>
     <p id="serNum" style="margin-bottom:0px"></p>
-    <p style="margin-bottom:0px">Version: 0.97</p>
+    <p style="margin-bottom:0px">Version: 0.99</p>
     <p style="margin-bottom:0px">двойным нажатием на плеер откроеться полно экранный режим</p>
 </div>
 
@@ -91,7 +91,7 @@
         document.getElementById('srAddLink').setAttribute('src',qs['link'])
 
         let nameAnime = document.getElementById('nameAnime')
-        nameAnime.innerText = qs['nameAnime']
+        nameAnime.innerText = 'Название: ' + qs['nameAnime']
 
         let nameTr = document.getElementById('nameTr')
         nameTr.innerText = 'Озвучка: ' + qs['nameTr']
