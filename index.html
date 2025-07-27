@@ -39,7 +39,8 @@
 
     </video>
 </div>
-
+<button value="выйти из полноэкранного режима" onclick="window.Telegram.WebApp.exitFullscreen()">
+<button value="Войти в полноэкранный режим" onclick="window.Telegram.WebApp.requestFullscreen()">
 <div>
     <h1>Info</h1>
     <p>Version: 0.5</p>
@@ -47,6 +48,8 @@
 </div>
 
 <script>
+
+
     function getQueryStrings() {
         var assoc  = {};
         var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
