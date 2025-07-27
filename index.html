@@ -19,17 +19,6 @@
             type="font/woff2"
             href="https://cdn.plyr.io/static/fonts/gordita-bold.woff2"
     />
-
-</head>
-<body>
-<script>
-    window.Telegram.WebApp.requestFullscreen()
-</script>
-
-<div id="container">
-    <video controls crossorigin playsinline id="player">
-        <source id="srAddLink" type="video/mp4" size="720"/>
-    </video>
     <script>
         function getQueryStrings() {
             var assoc  = {};
@@ -46,6 +35,21 @@
 
             return assoc;
         }
+    </script>
+</head>
+<body>
+<script>
+    window.Telegram.WebApp.requestFullscreen()
+</script>
+
+<div id="container" style="margin-top: var(--tg-content-safe-area-inset-top);">
+    <p id="nameAnim"></p>
+    <p id="nameTr"></p>
+    <p id="serNum"></p>
+    <video controls crossorigin playsinline id="player">
+        <source id="srAddLink" type="video/mp4" size="720"/>
+    </video>
+    <script>
         function addStylePl(){
             let st = "margin-top: var(--tg-content-safe-area-inset-top); margin-left: var(--tg-content-safe-area-inset-left); margin-bottom: var(--tg-content-safe-area-inset-bottom); margin-right: var(--tg-content-safe-area-inset-right);"
             document.getElementById('player').setAttribute('style',st)
@@ -57,11 +61,14 @@
 
         var qs = getQueryStrings();
         document.getElementById('srAddLink').setAttribute('src',qs['link'])
+        document.getElementById('nameAnime').innerText = qs['nameAnime']
+        document.getElementById('nameTr').innerText = qs['nameTr']
+        document.getElementById('serNum').innerText = qs['serNum']
     </script>
 </div>
 <div>
     <h1>Info</h1>
-    <p>Version: 0.8</p>
+    <p>Version: 0.9</p>
     <p>двойным нажатием на плеер откроеться полно экранный режим</p>
 </div>
 <!--<div>-->
