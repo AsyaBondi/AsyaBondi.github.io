@@ -27,13 +27,17 @@
 <!--</script>-->
 
 <div id="container">
-    <video controls crossorigin playsinline id="player">
+    <video controls crossorigin playsinline id="player" style="margin-top: var(--tg-content-safe-area-inset-top)">
         <!-- Video files -->
         <source id="srAddLink" type="video/mp4" size="720"/>
 
     </video>
 </div>
 
+<div>
+    <h1>Info</h1>
+    <p>safeAreaInset:  <span></span></p>
+</div>
 
 <script>
     function getQueryStrings() {
