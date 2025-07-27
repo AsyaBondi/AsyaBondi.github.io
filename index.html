@@ -4,24 +4,24 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://vjs.zencdn.net/8.23.3/video-js.css" rel="stylesheet" />
+    <script>
+        const player = new Plyr('video', {captions: {active: true}});
+
+        window.player = player;
+    </script>
+
 </head>
 <body>
-<script>
-    window.Telegram.WebApp.requestFullscreen()
-</script>
+<!--<script>-->
+<!--    window.Telegram.WebApp.requestFullscreen()-->
+<!--</script>-->
 
-<video
-    id="my-video"
-    class="video-js"
-    controls
-    preload="auto"
-    width="auto"
-    height="auto"
-  >
-    <source type="video/mp4" id="srAddLink"/>
-  </video>
-
+<div class="container">
+	<video controls crossorigin playsinline>
+        <source type="video/mp4"  id="srAddLink">
+	</video>
+</div>
+<!-- Plyr resources and browser polyfills are specified in the pen settings -->
 
 
 <script>
@@ -43,7 +43,7 @@
     var qs = getQueryStrings();
     document.getElementById('srAddLink').setAttribute('src',qs['link'])
 </script>
- <script src="https://vjs.zencdn.net/8.23.3/video.min.js"></script>
-
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 </body>
 </html>
