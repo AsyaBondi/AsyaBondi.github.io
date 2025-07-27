@@ -38,10 +38,41 @@
         <source id="srAddLink" type="video/mp4" size="720"/>
 
     </video>
+    <script>
+        function getQueryStrings() {
+            var assoc  = {};
+            var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+            var queryString = location.search.substring(1);
+            var keyValues = queryString.split('&');
+
+            for(var i in keyValues) {
+                var key = keyValues[i].split('=');
+                if (key.length > 1) {
+                    assoc[decode(key[0])] = decode(key[1]);
+                }
+            }
+
+            return assoc;
+        }
+        function addStylePl(){
+            let st = "margin-top: var(--tg-content-safe-area-inset-top);
+               margin-left: var(--tg-content-safe-area-inset-left);
+               margin-bottom: var(--tg-content-safe-area-inset-bottom);
+               margin-right: var(--tg-content-safe-area-inset-right);"
+            document.getElementById('player').setAttribute('style',st)
+        }
+        function remStylePl(){
+            document.getElementById('player').removeAttribute('style')
+        }
+
+
+        var qs = getQueryStrings();
+        document.getElementById('srAddLink').setAttribute('src',qs['link'])
+    </script>
 </div>
 <div>
     <h1>Info</h1>
-    <p>Version: 0.71</p>
+    <p>Version: 0.72</p>
     <p>двойным нажатием на плеер откроеться полно экранный режим</p>
 </div>
 <div>
@@ -61,37 +92,7 @@
     </button>
 </div>
 
-<script>
-    function getQueryStrings() {
-        var assoc  = {};
-        var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
-        var queryString = location.search.substring(1);
-        var keyValues = queryString.split('&');
 
-        for(var i in keyValues) {
-            var key = keyValues[i].split('=');
-            if (key.length > 1) {
-                assoc[decode(key[0])] = decode(key[1]);
-            }
-        }
-
-        return assoc;
-    }
-    function addStylePl(){
-        let st = "margin-top: var(--tg-content-safe-area-inset-top);
-           margin-left: var(--tg-content-safe-area-inset-left);
-           margin-bottom: var(--tg-content-safe-area-inset-bottom);
-           margin-right: var(--tg-content-safe-area-inset-right);"
-        document.getElementById('player').setAttribute('style',st)
-    }
-    function remStylePl(){
-        document.getElementById('player').removeAttribute('style')
-    }
-
-
-    var qs = getQueryStrings();
-    document.getElementById('srAddLink').setAttribute('src',qs['link'])
-</script>
 <script src="https://cdn.plyr.io/3.7.8/demo.js" crossorigin="anonymous"></script>
 </body>
 </html>
