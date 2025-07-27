@@ -27,16 +27,8 @@
 </script>
 
 <div id="container">
-    <video controls crossorigin playsinline id="player"
-           style="
-           margin-top: var(--tg-content-safe-area-inset-top);
-           margin-left: var(--tg-content-safe-area-inset-left);
-           margin-bottom: var(--tg-content-safe-area-inset-bottom);
-           margin-right: var(--tg-content-safe-area-inset-right);
-">
-        <!-- Video files -->
+    <video controls crossorigin playsinline id="player">
         <source id="srAddLink" type="video/mp4" size="720"/>
-
     </video>
     <script>
         function getQueryStrings() {
@@ -69,16 +61,8 @@
 </div>
 <div>
     <h1>Info</h1>
-    <p>Version: 0.73</p>
+    <p>Version: 0.75</p>
     <p>двойным нажатием на плеер откроеться полно экранный режим</p>
-</div>
-<div>
-    <button class="button js-shr" onclick="window.Telegram.WebApp.exitFullscreen()">Выйти из
-        полноэкранного режима
-    </button>
-    <button class="button js-shr" onclick="window.Telegram.WebApp.requestFullscreen()">Войти в
-        полноэкранный режим
-    </button>
 </div>
 <div>
     <button class="button js-shr" onclick="addStylePl()">
@@ -88,6 +72,15 @@
         Убрать отступы в плеере
     </button>
 </div>
+<div>
+    <button class="button js-shr" onclick="window.Telegram.WebApp.exitFullscreen()">Выйти из
+        полноэкранного режима
+    </button>
+    <button class="button js-shr" onclick="window.Telegram.WebApp.requestFullscreen()">Войти в
+        полноэкранный режим
+    </button>
+</div>
+
 
 
 <script src="https://cdn.plyr.io/3.7.8/demo.js" crossorigin="anonymous"></script>
