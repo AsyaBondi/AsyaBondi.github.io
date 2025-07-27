@@ -40,17 +40,25 @@
     </video>
 </div>
 <div>
-    <button class="button js-shr" value="выйти из полноэкранного режима" onclick="window.Telegram.WebApp.exitFullscreen()">Выйти из
+    <h1>Info</h1>
+    <p>Version: 0.7</p>
+    <p>двойным нажатием на плеер откроеться полно экранный режим</p>
+</div>
+<div>
+    <button class="button js-shr" onclick="window.Telegram.WebApp.exitFullscreen()">Выйти из
         полноэкранного режима
     </button>
-    <button class="button js-shr" value="Войти в полноэкранный режим" onclick="window.Telegram.WebApp.requestFullscreen()">Войти в
+    <button class="button js-shr" onclick="window.Telegram.WebApp.requestFullscreen()">Войти в
         полноэкранный режим
     </button>
 </div>
 <div>
-    <h1>Info</h1>
-    <p>Version: 0.65</p>
-    <p>двойным нажатием на плеер откроеться полно экранный режим</p>
+    <button class="button js-shr" onclick="addStyle()">
+        Добавить отступы в плеере
+    </button>
+    <button class="button js-shr" onclick="remStyle()">
+        Убрать отступы в плеере
+    </button>
 </div>
 
 <script>
@@ -69,6 +77,18 @@
 
         return assoc;
     }
+    function addStyle(){
+        let st = "margin-top: var(--tg-content-safe-area-inset-top);
+           margin-left: var(--tg-content-safe-area-inset-left);
+           margin-bottom: var(--tg-content-safe-area-inset-bottom);
+           margin-right: var(--tg-content-safe-area-inset-right);"
+        document.getElementById('player').setAttribute('style',st)
+    }
+    function remStyle(){
+        document.getElementById('player').removeAttribute('style')
+    }
+
+
     var qs = getQueryStrings();
     document.getElementById('srAddLink').setAttribute('src',qs['link'])
 </script>
