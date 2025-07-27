@@ -3,11 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link href="https://vjs.zencdn.net/8.23.3/video-js.css" rel="stylesheet" />
 </head>
 <body>
-<video controls="controls" width="100%" autoplay>
-    <source type='video/mp4' id="srAddLink">
-</video>
+<video
+    id="my-video"
+    class="video-js"
+    controls
+    preload="auto"
+    width="720"
+    height="264"
+    data-setup="{}"
+  >
+    <source type="video/mp4" id="srAddLink"/>
+  </video>
+
+
+
 <script>
     function getQueryStrings() {
         var assoc  = {};
@@ -27,5 +39,6 @@
     var qs = getQueryStrings();
     document.getElementById('srAddLink').setAttribute('src',qs['link'])
 </script>
+ <script src="https://vjs.zencdn.net/8.23.3/video.min.js"></script>
 </body>
 </html>
