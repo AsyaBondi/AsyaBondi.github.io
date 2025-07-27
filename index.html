@@ -4,10 +4,21 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        const player = new Plyr('video', {captions: {active: true}});
-        window.player = player;
-    </script>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/demo.css"/>
+    <link
+            rel="preload"
+            as="font"
+            crossorigin
+            type="font/woff2"
+            href="https://cdn.plyr.io/static/fonts/gordita-medium.woff2"
+    />
+    <link
+            rel="preload"
+            as="font"
+            crossorigin
+            type="font/woff2"
+            href="https://cdn.plyr.io/static/fonts/gordita-bold.woff2"
+    />
 
 </head>
 <body>
@@ -15,12 +26,13 @@
     window.Telegram.WebApp.requestFullscreen()
 </script>
 
-<div class="container">
-	<video controls crossorigin playsinline>
-        <source type="video/mp4"  id="srAddLink">
-	</video>
+<div id="container">
+    <video controls crossorigin playsinline id="player">
+        <!-- Video files -->
+        <source id="srAddLink" type="video/mp4" size="720"/>
+
+    </video>
 </div>
-<!-- Plyr resources and browser polyfills are specified in the pen settings -->
 
 
 <script>
@@ -42,7 +54,6 @@
     var qs = getQueryStrings();
     document.getElementById('srAddLink').setAttribute('src',qs['link'])
 </script>
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<script src="https://cdn.plyr.io/3.7.8/demo.js" crossorigin="anonymous"></script>
 </body>
 </html>
