@@ -41,7 +41,7 @@
 </div>
 <div>
     <h1>Info</h1>
-    <p>Version: 0.7</p>
+    <p>Version: 0.71</p>
     <p>двойным нажатием на плеер откроеться полно экранный режим</p>
 </div>
 <div>
@@ -53,10 +53,10 @@
     </button>
 </div>
 <div>
-    <button class="button js-shr" onclick="addStyle()">
+    <button class="button js-shr" onclick="addStylePl()">
         Добавить отступы в плеере
     </button>
-    <button class="button js-shr" onclick="remStyle()">
+    <button class="button js-shr" onclick="remStylePl()">
         Убрать отступы в плеере
     </button>
 </div>
@@ -77,14 +77,14 @@
 
         return assoc;
     }
-    function addStyle(){
+    function addStylePl(){
         let st = "margin-top: var(--tg-content-safe-area-inset-top);
            margin-left: var(--tg-content-safe-area-inset-left);
            margin-bottom: var(--tg-content-safe-area-inset-bottom);
            margin-right: var(--tg-content-safe-area-inset-right);"
         document.getElementById('player').setAttribute('style',st)
     }
-    function remStyle(){
+    function remStylePl(){
         document.getElementById('player').removeAttribute('style')
     }
 
