@@ -5,8 +5,27 @@
     <title>Title</title>
 </head>
 <body>
-<video controls="controls" width="100%" autoplay>
-    <source src="https://cloud.kodik-storage.com/useruploads/fe8c3446-fe36-45fe-ae9a-cb90702d23fa/ba269010cc83164ae7428c4f0bfd0f67:2025072718/720.mp4" type='video/mp4'>
+<video controls="controls" width="720" autoplay>
+    <source type='video/mp4' id="srAddLink">
 </video>
+<script>
+    function getQueryStrings() {
+        var assoc  = {};
+        var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+        var queryString = location.search.substring(1);
+        var keyValues = queryString.split('&');
+
+        for(var i in keyValues) {
+            var key = keyValues[i].split('=');
+            if (key.length > 1) {
+                assoc[decode(key[0])] = decode(key[1]);
+            }
+        }
+
+        return assoc;
+    }
+    var qs = getQueryStrings();
+    document.getElementById('srAddLink').setAttribute('src',qs['link'])
+</script>
 </body>
 </html>
