@@ -196,13 +196,85 @@
         <button class="action-button secondary-button" onclick="window.Telegram.WebApp.close()">Закрыть</button>
     </div>
 
+    <!-- Отладочная информация -->
+    <div id="debugInfo" style="margin-top: 20px; padding: 16px; background: var(--tg-theme-secondary-bg-color); border-radius: 8px; font-size: 12px; max-height: 200px; overflow-y: auto; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong>📊 Отладочная информация:</strong>
+            <div>
+                <button onclick="clearLogs()" style="font-size: 10px; padding: 2px 6px; border: none; border-radius: 4px; background: #ff6b6b; color: white; cursor: pointer; margin-right: 4px;">🗑️ Очистить</button>
+                <button onclick="toggleDebug()" style="font-size: 10px; padding: 2px 6px; border: none; border-radius: 4px; background: var(--tg-theme-button-color); color: white; cursor: pointer;">Скрыть</button>
+            </div>
+        </div>
+        <div id="debugLogs"></div>
+    </div>
+
+    <!-- Кнопка для показа отладки -->
+    <div style="margin-top: 10px; text-align: center;">
+        <button onclick="toggleDebug()" style="font-size: 11px; padding: 4px 8px; border: none; border-radius: 6px; background: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-text-color); cursor: pointer;">🐛 Показать отладку</button>
+    </div>
+
     <script>
         let currentAnime = null;
 
+        // Функция для вывода отладочной информации на страницу
+        function logToPage(message, type = 'info') {
+            const logsContainer = document.getElementById('debugLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+
+            const logEntry = document.createElement('div');
+            logEntry.style.margin = '4px 0';
+            logEntry.style.padding = '4px';
+            logEntry.style.borderRadius = '4px';
+            logEntry.style.background = type === 'error' ? '#ffebee' : type === 'success' ? '#e8f5e8' : '#f5f5f5';
+            logEntry.innerHTML = `<span style="color: #666; font-size: 11px;">${timestamp}</span> ${emoji} ${message}`;
+
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+
+            // Также выводим в консоль для разработчиков
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        // Функция для переключения видимости блока с отладкой
+        function toggleDebug() {
+            const debugInfo = document.getElementById('debugInfo');
+            const isVisible = debugInfo.style.display !== 'none';
+
+            if (isVisible) {
+                debugInfo.style.display = 'none';
+                logToPage('Отладочная информация скрыта');
+            } else {
+                debugInfo.style.display = 'block';
+                logToPage('Отладочная информация показана', 'success');
+            }
+        }
+
+        // Функция для очистки логов
+        function clearLogs() {
+            const logsContainer = document.getElementById('debugLogs');
+            logsContainer.innerHTML = '';
+            logToPage('Логи очищены', 'success');
+        }
+
         // Инициализация WebApp
         document.addEventListener('DOMContentLoaded', function() {
+            logToPage('WebApp инициализация...');
+            logToPage('Telegram WebApp доступен: ' + !!window.Telegram?.WebApp);
+
+            if (!window.Telegram?.WebApp) {
+                logToPage('Telegram WebApp API недоступен!', 'error');
+                // Автоматически показываем отладку при ошибке
+                document.getElementById('debugInfo').style.display = 'block';
+                document.body.innerHTML = '<div style="padding: 20px; text-align: center;">Ошибка: Telegram WebApp API недоступен. Откройте через Telegram.</div>';
+                return;
+            }
+
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
+
+            logToPage('WebApp готов, версия: ' + window.Telegram.WebApp.version);
+            logToPage('Платформа: ' + window.Telegram.WebApp.platform);
 
             // Настройка цвета заголовка
             window.Telegram.WebApp.setHeaderColor('bg_color');
@@ -214,6 +286,8 @@
                     searchAnime();
                 }
             });
+
+            logToPage('WebApp инициализирован успешно', 'success');
         });
 
         // Функция поиска аниме
@@ -227,18 +301,37 @@
             showLoading();
 
             // Отправка запроса боту - поиск будет выполнен в чате
-            window.Telegram.WebApp.sendData(JSON.stringify({
+            const data = JSON.stringify({
                 action: 'search',
                 query: query
-            }));
+            });
 
-            // Показываем сообщение пользователю
-            showNotification('Поиск выполняется в чате бота...', 'info');
+            logToPage('Отправка данных в бот: ' + data);
 
-            // Закрываем WebApp через 2 секунды, чтобы пользователь увидел результаты в чате
-            setTimeout(() => {
-                window.Telegram.WebApp.close();
-            }, 2000);
+            try {
+                window.Telegram.WebApp.sendData(data);
+                logToPage('Данные успешно отправлены', 'success');
+
+                // Показываем сообщение пользователю
+                showNotification('Поиск выполняется в чате бота...', 'info');
+
+                // Закрываем WebApp через 2 секунды, чтобы пользователь увидел результаты в чате
+                setTimeout(() => {
+                    window.Telegram.WebApp.close();
+                }, 2000);
+            } catch (error) {
+                logToPage('Ошибка отправки данных: ' + error.message, 'error');
+                // Автоматически показываем отладку при ошибке
+                document.getElementById('debugInfo').style.display = 'block';
+                showNotification('Ошибка отправки данных боту', 'error');
+                // Убираем загрузку при ошибке
+                document.getElementById('results').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <div>Ошибка связи с ботом. Попробуйте еще раз.</div>
+                    </div>
+                `;
+            }
         }
 
         // Показать загрузку
