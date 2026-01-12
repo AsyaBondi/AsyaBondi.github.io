@@ -294,7 +294,7 @@
         function searchAnime() {
             const query = document.getElementById('searchInput').value.trim();
             if (!query) {
-                showNotification('Введите название аниме', 'error');
+                logToPage('Введите название аниме для поиска', 'error');
                 return;
             }
 
@@ -310,20 +310,16 @@
 
             try {
                 window.Telegram.WebApp.sendData(data);
-                logToPage('Данные успешно отправлены', 'success');
+                logToPage('Поиск отправлен в чат бота', 'success');
 
-                // Показываем сообщение пользователю
-                showNotification('Поиск выполняется в чате бота...', 'info');
-
-                // Закрываем WebApp через 2 секунды, чтобы пользователь увидел результаты в чате
+                // Закрываем WebApp сразу после отправки данных
                 setTimeout(() => {
                     window.Telegram.WebApp.close();
-                }, 2000);
+                }, 300);
             } catch (error) {
                 logToPage('Ошибка отправки данных: ' + error.message, 'error');
                 // Автоматически показываем отладку при ошибке
                 document.getElementById('debugInfo').style.display = 'block';
-                showNotification('Ошибка отправки данных боту', 'error');
                 // Убираем загрузку при ошибке
                 document.getElementById('results').innerHTML = `
                     <div class="empty-state">
