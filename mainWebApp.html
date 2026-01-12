@@ -226,11 +226,19 @@
 
             showLoading();
 
-            // Отправка запроса боту
+            // Отправка запроса боту - поиск будет выполнен в чате
             window.Telegram.WebApp.sendData(JSON.stringify({
                 action: 'search',
                 query: query
             }));
+
+            // Показываем сообщение пользователю
+            showNotification('Поиск выполняется в чате бота...', 'info');
+
+            // Закрываем WebApp через 2 секунды, чтобы пользователь увидел результаты в чате
+            setTimeout(() => {
+                window.Telegram.WebApp.close();
+            }, 2000);
         }
 
         // Показать загрузку
