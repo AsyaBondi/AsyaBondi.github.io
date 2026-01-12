@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FreeAnime - Плеер</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/demo.css"/>
+    <link
+            rel="preload"
+            as="font"
+            crossorigin
+            type="font/woff2"
+            href="https://cdn.plyr.io/static/fonts/gordita-medium.woff2"
+    />
+    <link
+            rel="preload"
+            as="font"
+            crossorigin
+            type="font/woff2"
+            href="https://cdn.plyr.io/static/fonts/gordita-bold.woff2"
+    />
+    <script>
+        function getQueryStrings() {
+            var assoc  = {};
+            var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+            var queryString = location.search.substring(1);
+            var keyValues = queryString.split('&');
+
+            for(var i in keyValues) {
+                var key = keyValues[i].split('=');
+                if (key.length > 1) {
+                    assoc[decode(key[0])] = decode(key[1]);
+                }
+            }
+
+            return assoc;
+        }
+        function addStylePl(){
+            let st = "margin-top: var(--tg-content-safe-area-inset-top); margin-left: var(--tg-content-safe-area-inset-left); margin-bottom: var(--tg-content-safe-area-inset-bottom); margin-right: var(--tg-content-safe-area-inset-right);"
+            document.getElementById('player').setAttribute('style',st)
+        }
+        function remStylePl(){
+            document.getElementById('player').removeAttribute('style')
+        }
+    </script>
+</head>
+<body>
+<script>
+    window.Telegram.WebApp.requestFullscreen()
+</script>
+<div  style="margin-top: var(--tg-content-safe-area-inset-top);"></div>
+<div id="container">
+    <video controls crossorigin playsinline id="player">
+        <source id="srAddLink" type="video/mp4" size="720"/>
+    </video>
+</div>
+<div>
+
+</div>
+<div style="margin-bottom:24px; padding: 16px; background: var(--tg-theme-secondary-bg-color, #f5f5f5); border-radius: 12px;">
+    <h2 style="margin-bottom: 12px; margin-top: 0; color: var(--tg-theme-text-color);">📹 Информация о видео</h2>
+    <div style="display: grid; gap: 8px;">
+        <p style="margin: 0;"><strong>Название:</strong> <span id="nameAnime"></span></p>
+        <p style="margin: 0;"><strong>Озвучка:</strong> <span id="nameTr"></span></p>
+        <p style="margin: 0;"><strong>Серия:</strong> <span id="serNum"></span></p>
+        <p style="margin: 0; color: var(--tg-theme-hint-color, #666); font-size: 14px;">Версия плеера: 1.0</p>
+        <p style="margin: 0; color: var(--tg-theme-hint-color, #666); font-size: 14px;">💡 Двойной клик по плееру - полноэкранный режим</p>
+    </div>
+</div>
+
+<div style="display: grid; gap: 8px;">
+    <div style="display: flex; gap: 8px;">
+        <button class="button js-shr" onclick="window.Telegram.WebApp.exitFullscreen()">📱 Выйти из полноэкранного</button>
+        <button class="button js-shr" onclick="window.Telegram.WebApp.requestFullscreen()">🖥️ Полный экран</button>
+    </div>
+
+    <div id="episodeControls" style="display: none;">
+        <h3 style="margin-bottom: 8px;">🎬 Управление сериями</h3>
+        <div style="display: flex; gap: 8px; justify-content: center;">
+            <button class="button js-shr" id="prevEpisode" onclick="changeEpisode(-1)">⬅️ Предыдущая</button>
+            <button class="button js-shr" id="nextEpisode" onclick="changeEpisode(1)">Следующая ➡️</button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+        <button class="button js-shr" onclick="togglePlayPause()">⏯️ Пауза/Воспроизведение</button>
+        <button class="button js-shr" onclick="window.Telegram.WebApp.close()">❌ Закрыть плеер</button>
+    </div>
+</div>
+
+
+
+<script>
+    var qs = getQueryStrings();
+    var currentEpisode = parseInt(qs['serNum']) || 1;
+    var isSerial = qs['isSerial'] === 'true';
+    var animeId = qs['animeId'];
+    var translationId = qs['translationId'];
+
+    document.getElementById('srAddLink').setAttribute('src', qs['link']);
+
+    let nameAnime = document.getElementById('nameAnime');
+    nameAnime.innerText = qs['nameAnime'];
+
+    let nameTr = document.getElementById('nameTr');
+    nameTr.innerText = qs['nameTr'];
+
+    let serNum = document.getElementById('serNum');
+    serNum.innerText = currentEpisode + (isSerial ? ' серия' : '');
+
+    // Показываем контролы серий если это сериал
+    if (isSerial) {
+        document.getElementById('episodeControls').style.display = 'block';
+        updateEpisodeButtons();
+    }
+
+    // Функции управления плеером
+    function togglePlayPause() {
+        const video = document.getElementById('player');
+        if (video.paused) {
+            video.play();
+        } else {
+            video.pause();
+        }
+    }
+
+    function changeEpisode(direction) {
+        const newEpisode = currentEpisode + direction;
+        if (newEpisode < 1) return; // Не даем уйти ниже 1 серии
+
+        // Отправляем запрос на смену серии через WebApp
+        window.Telegram.WebApp.sendData(JSON.stringify({
+            action: 'change_episode',
+            animeId: animeId,
+            translationId: translationId,
+            currentEpisode: currentEpisode,
+            newEpisode: newEpisode
+        }));
+
+        // Показываем уведомление
+        window.Telegram.WebApp.showAlert(`Переход к ${newEpisode} серии...`);
+    }
+
+    function updateEpisodeButtons() {
+        const prevBtn = document.getElementById('prevEpisode');
+        const nextBtn = document.getElementById('nextEpisode');
+
+        // Блокируем кнопку "Предыдущая" если это первая серия
+        prevBtn.disabled = currentEpisode <= 1;
+        prevBtn.style.opacity = currentEpisode <= 1 ? '0.5' : '1';
+    }
+
+    // Обработка горячих клавиш
+    document.addEventListener('keydown', function(event) {
+        switch(event.code) {
+            case 'Space':
+                event.preventDefault();
+                togglePlayPause();
+                break;
+            case 'ArrowLeft':
+                if (isSerial) changeEpisode(-1);
+                break;
+            case 'ArrowRight':
+                if (isSerial) changeEpisode(1);
+                break;
+            case 'KeyF':
+                event.preventDefault();
+                if (window.Telegram.WebApp.isFullscreen) {
+                    window.Telegram.WebApp.exitFullscreen();
+                } else {
+                    window.Telegram.WebApp.requestFullscreen();
+                }
+                break;
+        }
+    });
+
+    // Отслеживание окончания видео
+    document.getElementById('player').addEventListener('ended', function() {
+        if (isSerial) {
+            // Автоматически переходим к следующей серии
+            setTimeout(() => {
+                changeEpisode(1);
+            }, 2000); // Задержка 2 секунды
+        }
+    });
+
+    // Показываем подсказку о горячих клавишах
+    setTimeout(() => {
+        window.Telegram.WebApp.showAlert(
+            '⌨️ Горячие клавиши:\n' +
+            '• Пробел - пауза/воспроизведение\n' +
+            '• ← → - предыдущая/следующая серия\n' +
+            '• F - полный экран'
+        );
+    }, 3000);
+</script>
+<script src="https://cdn.plyr.io/3.7.8/demo.js" crossorigin="anonymous"></script>
+</body>
+</html>
