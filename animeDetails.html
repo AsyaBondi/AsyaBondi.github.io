@@ -412,18 +412,20 @@
 
         // Инициализация WebApp
         document.addEventListener('DOMContentLoaded', function() {
+            const tg = window.Telegram.WebApp;
+
             console.log('🚀 AnimeDetails WebApp запускается...');
 
             // Проверяем доступность WebApp API
-            if (!window.Telegram?.WebApp) {
+            if (!tg) {
                 showError('WebApp API недоступен. Откройте через Telegram бота!');
                 return;
             }
 
             // Инициализируем WebApp
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-            window.Telegram.WebApp.setHeaderColor('bg_color');
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('bg_color');
 
             console.log('✅ WebApp инициализирован');
 
@@ -575,8 +577,10 @@
 
         // Просмотр аниме
         function watchAnime() {
+            const tg = window.Telegram.WebApp;
+
             if (!selectedTranslation || (!selectedEpisode && isSerial)) {
-                window.Telegram.WebApp.showAlert('Выберите озвучку и серию');
+                if (tg) tg.showAlert('Выберите озвучку и серию');
                 return;
             }
 
@@ -596,7 +600,7 @@
             };
 
             try {
-                window.Telegram.WebApp.sendData(JSON.stringify(watchData));
+                tg.sendData(JSON.stringify(watchData));
                 console.log('📤 Данные отправлены боту');
 
                 // Показываем подтверждение
@@ -604,7 +608,7 @@
 
             } catch (error) {
                 console.error('❌ Ошибка отправки данных:', error);
-                window.Telegram.WebApp.showAlert('Ошибка при отправке запроса');
+                if (tg) tg.showAlert('Ошибка при отправке запроса');
             }
         }
 
@@ -632,11 +636,13 @@
 
         // Назад к поиску
         function goBack() {
+            const tg = window.Telegram.WebApp;
+
             console.log('⬅️ Возврат к поиску');
 
             // Отправляем сигнал боту (опционально)
             try {
-                window.Telegram.WebApp.sendData(JSON.stringify({
+                tg.sendData(JSON.stringify({
                     action: 'go_back',
                     timestamp: new Date().toISOString()
                 }));
@@ -645,7 +651,7 @@
             }
 
             // Закрываем WebApp
-            window.Telegram.WebApp.close();
+            if (tg) tg.close();
         }
 
         // Показать ошибку

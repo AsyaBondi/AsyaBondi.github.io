@@ -340,10 +340,12 @@
 </head>
 <body>
     <script>
+        const tg = window.Telegram.WebApp;
+
         // Инициализация WebApp
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.setHeaderColor('bg_color');
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('bg_color');
     </script>
 
     <div class="container">
@@ -386,10 +388,10 @@
     </div>
 
     <div class="action-buttons">
-        <button class="action-button secondary-button" onclick="window.Telegram.WebApp.exitFullscreen()">📱 Выйти из полноэкранного</button>
-        <button class="action-button secondary-button" onclick="window.Telegram.WebApp.requestFullscreen()">🖥️ Полный экран</button>
+        <button class="action-button secondary-button" onclick="tg.exitFullscreen()">📱 Выйти из полноэкранного</button>
+        <button class="action-button secondary-button" onclick="tg.requestFullscreen()">🖥️ Полный экран</button>
         <button class="action-button secondary-button" onclick="togglePlayPause()">⏯️ Пауза/Воспроизведение</button>
-        <button class="action-button" onclick="window.Telegram.WebApp.close()">❌ Закрыть плеер</button>
+        <button class="action-button" onclick="tg.close()">❌ Закрыть плеер</button>
     </div>
 
 
@@ -462,7 +464,7 @@
         console.log(`📺 Смена серии: ${currentEpisode} → ${newEpisode}`);
 
         // Отправляем запрос на смену серии через WebApp
-        window.Telegram.WebApp.sendData(JSON.stringify({
+        tg.sendData(JSON.stringify({
             action: 'change_episode',
             animeId: animeId,
             translationId: translationId,
@@ -477,7 +479,7 @@
         updateActiveEpisodeButton();
 
         // Показываем уведомление
-        window.Telegram.WebApp.showAlert(`Переход к ${newEpisode} серии...`);
+        tg.showAlert(`Переход к ${newEpisode} серии...`);
     }
 
     // Инициализация Plyr плеера
@@ -550,7 +552,7 @@
 
     // Показываем подсказку о горячих клавишах через 5 секунд
     setTimeout(() => {
-        window.Telegram.WebApp.showAlert(
+        tg.showAlert(
             '⌨️ Управление плеером:\n' +
             '• Пробел - пауза/воспроизведение\n' +
             '• ← → - предыдущая/следующая серия\n' +

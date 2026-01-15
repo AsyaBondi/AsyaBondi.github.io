@@ -560,19 +560,21 @@
 
         // Инициализация WebApp
         document.addEventListener('DOMContentLoaded', function() {
+            const tg = window.Telegram.WebApp;
+
             logToApp('🚀 FreeAnime WebApp запускается...', 'info');
 
             // Проверяем доступность WebApp API
-            if (!window.Telegram?.WebApp) {
+            if (!tg) {
                 showError('WebApp API недоступен. Откройте через Telegram бота!');
                 logToApp('🚨 Критическая ошибка: WebApp API недоступен', 'error');
                 return;
             }
 
             // Инициализируем WebApp
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-            window.Telegram.WebApp.setHeaderColor('bg_color');
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('bg_color');
 
             logToApp('✅ WebApp инициализирован', 'success');
 
@@ -636,7 +638,7 @@
             };
 
             try {
-                window.Telegram.WebApp.sendData(JSON.stringify(searchData));
+                tg.sendData(JSON.stringify(searchData));
                 logToApp('📤 Данные поиска успешно отправлены в бота', 'success');
 
                 // Показываем сообщение пользователю
@@ -686,6 +688,7 @@
 
         // Показать ошибку
         function showError(message) {
+            const tg = window.Telegram.WebApp;
             const results = document.getElementById('results');
             results.innerHTML = `
                 <div class="status-container">
@@ -694,6 +697,8 @@
                     <div class="status-text">${message}</div>
                 </div>
             `;
+            // Также показываем alert для важных ошибок
+            if (tg) tg.showAlert(message);
         }
 
         // Выбор аниме (если нужно открыть детали)
@@ -708,16 +713,18 @@
                 timestamp: new Date().toISOString()
             };
 
+            const tg = window.Telegram.WebApp;
             try {
-                window.Telegram.WebApp.sendData(JSON.stringify(selectData));
+                tg.sendData(JSON.stringify(selectData));
                 logToApp('📤 Выбор аниме успешно отправлен в бота', 'success');
             } catch (error) {
                 logToApp(`❌ Ошибка отправки выбора аниме: ${error.message}`, 'error');
-                window.Telegram.WebApp.showAlert('Ошибка выбора аниме');
+                if (tg) tg.showAlert('Ошибка выбора аниме');
             }
         }
 
         // Обработка сообщений от бота (если бот отправит данные)
+        const tg = window.Telegram.WebApp;
         window.addEventListener('message', function(event) {
             try {
                 const data = JSON.parse(event.data);
