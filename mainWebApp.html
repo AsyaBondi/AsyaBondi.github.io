@@ -273,6 +273,26 @@
             .search-input, .search-button, .action-button {
                 font-size: 16px; /* Предотвращает зум на iOS */
             }
+
+            .log-panel {
+                bottom: calc(70px + var(--tg-content-safe-area-inset-bottom));
+                left: 8px;
+                right: 8px;
+                max-height: 60vh;
+            }
+
+            .log-content {
+                font-size: 11px;
+            }
+
+            .log-actions {
+                padding: 8px;
+            }
+
+            .log-button {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
         }
 
         /* Темная тема */
@@ -281,6 +301,125 @@
                 background: var(--tg-theme-secondary-bg-color, #2c2c2e);
                 border-color: var(--tg-theme-secondary-bg-color, #3c3c3e);
             }
+        }
+
+        /* Панель логов */
+        .log-panel {
+            position: fixed;
+            bottom: calc(80px + var(--tg-content-safe-area-inset-bottom));
+            left: 16px;
+            right: 16px;
+            background: var(--tg-theme-bg-color, #ffffff);
+            border: 2px solid var(--tg-theme-secondary-bg-color, #e0e0e0);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #e0e0e0);
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border-radius: 14px 14px 0 0;
+        }
+
+        .log-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--tg-theme-text-color);
+        }
+
+        .log-toggle {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--tg-theme-button-color);
+            padding: 4px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .log-toggle:hover {
+            background: var(--tg-theme-secondary-bg-color, #e0e0e0);
+        }
+
+        .log-content {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            background: var(--tg-theme-bg-color, #ffffff);
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            word-wrap: break-word;
+        }
+
+        .log-entry.info {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            color: var(--tg-theme-text-color);
+        }
+
+        .log-entry.success {
+            background: #e8f5e8;
+            color: #2d5a2d;
+            border-left: 3px solid #4caf50;
+        }
+
+        .log-entry.error {
+            background: #ffeaea;
+            color: #d32f2f;
+            border-left: 3px solid #f44336;
+        }
+
+        .log-entry.warning {
+            background: #fff3e0;
+            color: #f57c00;
+            border-left: 3px solid #ff9800;
+        }
+
+        .log-timestamp {
+            color: var(--tg-theme-hint-color, #666);
+            font-size: 11px;
+            margin-right: 6px;
+        }
+
+        .log-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--tg-theme-secondary-bg-color, #e0e0e0);
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border-radius: 0 0 14px 14px;
+        }
+
+        .log-button {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--tg-theme-secondary-bg-color, #ddd);
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color);
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .log-button:hover {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
         }
 
         /* Анимации появления */
@@ -301,6 +440,22 @@
                 transform: translateY(0);
             }
         }
+
+        /* Анимации панели логов */
+        .log-panel {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -310,16 +465,30 @@
             <button id="searchButton" class="search-button">🔍 Искать</button>
         </div>
 
-            <div id="results">
+                <div id="results">
             <div class="status-container">
                 <div class="status-icon">🎬</div>
                 <div class="status-title">Добро пожаловать!</div>
                 <div class="status-text">Введите название аниме в поле поиска выше</div>
             </div>
         </div>
+
+        <!-- Панель логов -->
+        <div id="logPanel" class="log-panel hidden">
+            <div class="log-header">
+                <span class="log-title">📋 Логи приложения</span>
+                <button class="log-toggle" onclick="toggleLogs()">✕</button>
+            </div>
+            <div id="logContent" class="log-content"></div>
+            <div class="log-actions">
+                <button class="log-button" onclick="clearLogs()">🗑️ Очистить</button>
+                <button class="log-button" onclick="exportLogs()">💾 Экспорт</button>
+            </div>
+        </div>
     </div>
 
     <div class="action-buttons">
+        <button class="action-button secondary-button" onclick="toggleLogs()">📋 Логи</button>
         <button class="action-button secondary-button" onclick="window.Telegram.WebApp.close()">❌ Закрыть</button>
     </div>
 
@@ -327,13 +496,83 @@
         let searchTimeout = null;
         let currentSearchId = 0;
 
+        // Функции логирования в приложении
+        function logToApp(message, type = 'info') {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-icon">${getLogIcon(type)}</span>
+                <span class="log-message">${message}</span>
+            `;
+
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+
+            // Также выводим в консоль браузера для разработчиков
+            const consoleMethod = type === 'error' ? 'error' : type === 'warning' ? 'warn' : 'log';
+            console[consoleMethod](`[${timestamp}] ${message}`);
+        }
+
+        function getLogIcon(type) {
+            switch(type) {
+                case 'success': return '✅';
+                case 'error': return '❌';
+                case 'warning': return '⚠️';
+                default: return '📝';
+            }
+        }
+
+        function toggleLogs() {
+            const logPanel = document.getElementById('logPanel');
+            const isVisible = !logPanel.classList.contains('hidden');
+
+            if (isVisible) {
+                logPanel.classList.add('hidden');
+                logToApp('Панель логов скрыта', 'info');
+            } else {
+                logPanel.classList.remove('hidden');
+                logToApp('Панель логов показана', 'success');
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logContent').innerHTML = '';
+            logToApp('Логи очищены', 'success');
+        }
+
+        function exportLogs() {
+            const logContent = document.getElementById('logContent');
+            const logs = Array.from(logContent.children).map(entry => {
+                const timestamp = entry.querySelector('.log-timestamp').textContent;
+                const message = entry.querySelector('.log-message').textContent;
+                return `${timestamp} ${message}`;
+            }).join('\n');
+
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `freeanime_logs_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            logToApp('Логи экспортированы в файл', 'success');
+        }
+
         // Инициализация WebApp
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 FreeAnime WebApp запускается...');
+            logToApp('🚀 FreeAnime WebApp запускается...', 'info');
 
             // Проверяем доступность WebApp API
             if (!window.Telegram?.WebApp) {
                 showError('WebApp API недоступен. Откройте через Telegram бота!');
+                logToApp('🚨 Критическая ошибка: WebApp API недоступен', 'error');
                 return;
             }
 
@@ -342,7 +581,7 @@
             window.Telegram.WebApp.expand();
             window.Telegram.WebApp.setHeaderColor('bg_color');
 
-            console.log('✅ WebApp инициализирован');
+            logToApp('✅ WebApp инициализирован', 'success');
 
             // Настраиваем обработчики событий
             const searchButton = document.getElementById('searchButton');
@@ -361,13 +600,15 @@
                 const query = this.value.trim();
 
                 if (query.length >= 2) {
+                    logToApp(`⌛ Автопоиск через 800мс: "${query}"`, 'info');
                     searchTimeout = setTimeout(() => performSearch(), 800);
                 } else if (query.length === 0) {
                     showWelcome();
+                    logToApp('Очищено поле поиска, показан приветственный экран', 'info');
                 }
             });
 
-            console.log('🎉 WebApp готов к работе!');
+            logToApp('🎉 WebApp готов к работе!', 'success');
         });
 
         // Выполнение поиска
@@ -376,19 +617,22 @@
 
             if (!query) {
                 window.Telegram.WebApp.showAlert('Введите название аниме для поиска');
+                logToApp('⚠️ Попытка поиска без текста', 'warning');
                 return;
             }
 
             if (query.length < 2) {
                 window.Telegram.WebApp.showAlert('Введите минимум 2 символа');
+                logToApp(`⚠️ Слишком короткий запрос: "${query}" (${query.length} символов)`, 'warning');
                 return;
             }
 
-            console.log('🔍 Выполняем поиск:', query);
+            logToApp(`🔍 Выполняем поиск аниме: "${query}"`, 'info');
             showLoading();
 
             // Создаем уникальный ID поиска
             currentSearchId = Date.now();
+            logToApp(`🆔 Сгенерирован ID поиска: ${currentSearchId}`, 'info');
 
             // Отправляем данные поиска в бота через sendData
             const searchData = {
@@ -400,13 +644,13 @@
 
             try {
                 window.Telegram.WebApp.sendData(JSON.stringify(searchData));
-                console.log('📤 Данные поиска отправлены в бота');
+                logToApp('📤 Данные поиска успешно отправлены в бота', 'success');
 
                 // Показываем сообщение пользователю
                 showSearching(query);
 
             } catch (error) {
-                console.error('❌ Ошибка отправки данных:', error);
+                logToApp(`❌ Ошибка отправки данных поиска: ${error.message}`, 'error');
                 showError('Не удалось отправить запрос. Попробуйте еще раз.');
             }
         }
@@ -461,7 +705,7 @@
 
         // Выбор аниме (если нужно открыть детали)
         function selectAnime(animeId, animeName) {
-            console.log('🎬 Выбор аниме:', animeName, 'ID:', animeId);
+            logToApp(`🎬 Выбор аниме: "${animeName}" (ID: ${animeId})`, 'info');
 
             // Отправляем выбор аниме в бота
             const selectData = {
@@ -473,9 +717,9 @@
 
             try {
                 window.Telegram.WebApp.sendData(JSON.stringify(selectData));
-                console.log('📤 Выбор аниме отправлен в бота');
+                logToApp('📤 Выбор аниме успешно отправлен в бота', 'success');
             } catch (error) {
-                console.error('❌ Ошибка отправки выбора:', error);
+                logToApp(`❌ Ошибка отправки выбора аниме: ${error.message}`, 'error');
                 window.Telegram.WebApp.showAlert('Ошибка выбора аниме');
             }
         }
@@ -485,12 +729,25 @@
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === 'anime_search_results' && data.searchId === currentSearchId) {
-                    console.log('📨 Получены результаты поиска от бота:', data);
-                    // Можно обработать результаты если бот их отправит
+                    logToApp(`📨 Получены результаты поиска от бота: ${data.results?.length || 0} результатов`, 'success');
+                    logToApp(`Подробности ответа: ${JSON.stringify(data, null, 2)}`, 'info');
+                } else if (data.type === 'anime_search_results') {
+                    logToApp(`📨 Получены устаревшие результаты поиска (ID: ${data.searchId})`, 'warning');
+                } else {
+                    logToApp(`📨 Получено неизвестное сообщение от бота: ${data.type}`, 'warning');
                 }
             } catch (e) {
-                // Игнорируем не-JSON сообщения
+                logToApp(`⚠️ Получено некорректное сообщение от бота: ${event.data}`, 'warning');
             }
+        });
+
+        // Обработка ошибок WebApp
+        window.addEventListener('error', function(event) {
+            logToApp(`💥 JavaScript ошибка: ${event.message} в ${event.filename}:${event.lineno}`, 'error');
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            logToApp(`💥 Необработанное обещание: ${event.reason}`, 'error');
         });
     </script>
 </body>
