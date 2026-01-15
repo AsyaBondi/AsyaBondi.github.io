@@ -270,12 +270,12 @@
                 height: 160px;
             }
 
-            .search-input, .search-button, .action-button {
+            .search-input, .search-button {
                 font-size: 16px; /* Предотвращает зум на iOS */
             }
 
             .log-panel {
-                bottom: calc(70px + var(--tg-content-safe-area-inset-bottom));
+                bottom: calc(8px + var(--tg-content-safe-area-inset-bottom));
                 left: 8px;
                 right: 8px;
                 max-height: 60vh;
@@ -306,7 +306,7 @@
         /* Панель логов */
         .log-panel {
             position: fixed;
-            bottom: calc(80px + var(--tg-content-safe-area-inset-bottom));
+            bottom: calc(16px + var(--tg-content-safe-area-inset-bottom));
             left: 16px;
             right: 16px;
             background: var(--tg-theme-bg-color, #ffffff);
@@ -422,6 +422,15 @@
             background: var(--tg-theme-secondary-bg-color, #f0f0f0);
         }
 
+        .close-button {
+            background: #ff6b6b !important;
+            color: white !important;
+        }
+
+        .close-button:hover {
+            background: #ff5252 !important;
+        }
+
         /* Анимации появления */
         .anime-card {
             animation: fadeInUp 0.6s ease-out forwards;
@@ -474,23 +483,19 @@
         </div>
 
         <!-- Панель логов -->
-        <div id="logPanel" class="log-panel hidden">
+        <div id="logPanel" class="log-panel">
             <div class="log-header">
                 <span class="log-title">📋 Логи приложения</span>
-                <button class="log-toggle" onclick="toggleLogs()">✕</button>
             </div>
             <div id="logContent" class="log-content"></div>
             <div class="log-actions">
                 <button class="log-button" onclick="clearLogs()">🗑️ Очистить</button>
                 <button class="log-button" onclick="exportLogs()">💾 Экспорт</button>
+                <button class="log-button close-button" onclick="window.Telegram.WebApp.close()">❌ Закрыть</button>
             </div>
         </div>
     </div>
 
-    <div class="action-buttons">
-        <button class="action-button secondary-button" onclick="toggleLogs()">📋 Логи</button>
-        <button class="action-button secondary-button" onclick="window.Telegram.WebApp.close()">❌ Закрыть</button>
-    </div>
 
     <script>
         let searchTimeout = null;
@@ -526,18 +531,6 @@
             }
         }
 
-        function toggleLogs() {
-            const logPanel = document.getElementById('logPanel');
-            const isVisible = !logPanel.classList.contains('hidden');
-
-            if (isVisible) {
-                logPanel.classList.add('hidden');
-                logToApp('Панель логов скрыта', 'info');
-            } else {
-                logPanel.classList.remove('hidden');
-                logToApp('Панель логов показана', 'success');
-            }
-        }
 
         function clearLogs() {
             document.getElementById('logContent').innerHTML = '';
