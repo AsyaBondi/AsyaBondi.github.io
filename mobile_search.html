@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff6b9d">
+    <title>Поиск аниме - Asya Anime</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="mobile-header">
+        <div class="header-content">
+            <button class="back-button" onclick="history.back()">←</button>
+            <h1 class="header-title">Asya Anime</h1>
+            <div class="header-spacer"></div>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <input
+                    type="text"
+                    id="searchInput"
+                    class="search-input"
+                    placeholder="Поиск аниме..."
+                    value="{{ search_query }}"
+                    autocomplete="off"
+                >
+                <button class="search-clear" id="clearButton" style="display: none;">✕</button>
+            </div>
+            <button class="search-button" id="searchButton">
+                <span class="search-icon">🔍</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+        {% if search_query %}
+            {% if anime_list %}
+                <div class="results-header">
+                    <h2>Результаты поиска</h2>
+                    <span class="results-count">{{ anime_list|length }} найдено</span>
+                </div>
+
+                <div class="anime-grid" id="animeGrid">
+                    {% for anime in anime_list %}
+                    <a href="/anime/{{ anime.id }}" class="anime-card-link">
+                        <div class="anime-card">
+                            <div class="card-image">
+                                <div class="card-poster" style="background: {% if anime.poster %}url({{ anime.poster }}) center / contain{% else %}linear-gradient(135deg, #667eea 0%, #764ba2 100%){% endif %}"></div>
+                                <div class="card-rating">★{{ "%.1f"|format(8.5 + loop.index * 0.1) }}</div>
+                                <div class="card-overlay"></div>
+                                <div class="card-title">{{ anime.name }}</div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <div class="no-results-icon">🔍</div>
+                    <h3>Ничего не найдено</h3>
+                    <p>Попробуйте изменить запрос или проверить орфографию</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Popular Anime Section -->
+            <div class="popular-section">
+                <h2>Популярные аниме</h2>
+                <div class="anime-grid">
+                    <div class="anime-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                            <div class="card-rating">★9.80</div>
+                            <div class="card-overlay"></div>
+                            <div class="card-title">One Piece</div>
+                        </div>
+                    </div>
+                    <div class="anime-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                            <div class="card-rating">★9.60</div>
+                            <div class="card-overlay"></div>
+                            <div class="card-title">Наруто</div>
+                        </div>
+                    </div>
+                    <div class="anime-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="card-rating">★9.35</div>
+                            <div class="card-overlay"></div>
+                            <div class="card-title">Магическая Битва</div>
+                        </div>
+                    </div>
+                    <div class="anime-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <div class="card-rating">★9.50</div>
+                            <div class="card-overlay"></div>
+                            <div class="card-title">Клинок, рассекающий демонов</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Loading Indicator -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Поиск...</p>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="/" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <span class="nav-label">Главная</span>
+        </a>
+        <a href="/mobile-search" class="nav-item active">
+            <div class="nav-icon">🔍</div>
+            <span class="nav-label">Поиск</span>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">⭐</div>
+            <span class="nav-label">Избранное</span>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <span class="nav-label">Профиль</span>
+        </a>
+    </nav>
+
+    <!-- WebApp JavaScript -->
+    <script>
+        // Проверка, запущен ли WebApp
+        const isWebApp = window.Telegram && window.Telegram.WebApp;
+        let tg = null;
+
+        if (isWebApp) {
+            // Инициализация Telegram WebApp
+            tg = window.Telegram.WebApp;
+            tg.ready();
+        }
+
+        // Обработчик кнопки поиска
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value.trim();
+
+            if (!query) {
+                if (isWebApp) {
+                    tg.showAlert('Пожалуйста, введите название аниме для поиска');
+                } else {
+                    alert('Пожалуйста, введите название аниме для поиска');
+                }
+                return;
+            }
+
+            if (isWebApp) {
+                // WebApp логика - отправка данных боту
+                const searchData = {
+                    action: 'search',
+                    query: query,
+                    timestamp: Date.now(),
+                    user_id: tg.initDataUnsafe?.user?.id || null,
+                    username: tg.initDataUnsafe?.user?.username || null
+                };
+
+                // Отправка данных боту и закрытие WebApp
+                tg.sendData(JSON.stringify(searchData));
+            } else {
+                // Обычная логика - отправка формы
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = '/mobile-search';
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'q';
+                input.value = query;
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        // Обработчик клавиши Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchButton').click();
+            }
+        });
+
+        // Управление кнопкой очистки
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const clearButton = document.getElementById('clearButton');
+            clearButton.style.display = this.value ? 'block' : 'none';
+        });
+
+        // Обработчик кнопки очистки
+        document.getElementById('clearButton').addEventListener('click', function() {
+            document.getElementById('searchInput').value = '';
+            this.style.display = 'none';
+            document.getElementById('searchInput').focus();
+        });
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Фокус на поле ввода
+            document.getElementById('searchInput').focus();
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
+</body>
+</html>
