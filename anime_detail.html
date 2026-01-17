@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff6b9d">
+    <title>{{ anime.title }} - Asya Anime</title>
+    {% comment %} <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}"> {% endcomment %}
+    <link rel="stylesheet" href="static/css/mobile.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <style>
+        /* Видеоплеер */
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            margin-bottom: 16px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            background: #000;
+        }
+
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="mobile-header">
+        <div class="header-content">
+            <button class="back-button" onclick="history.back()">←</button>
+            <h1 class="header-title">Asya Anime</h1>
+            <div class="header-spacer"></div>
+        </div>
+    </header>
+
+    <!-- Anime Detail Section -->
+    <section class="anime-detail-section">
+        {% if anime %}
+        <!-- Anime Title Section -->
+        <div class="anime-title-section">
+            <h1 class="anime-title">{{ anime.title }}</h1>
+            <h2 class="anime-original-title">{{ anime.original_title }}</h2>
+        </div>
+
+        <!-- Anime Poster Section (Full Width) -->
+        <div class="anime-poster-section">
+            {% set poster_url = (anime.picture or anime.poster or "") %}
+            {% if poster_url and poster_url.startswith('http') %}
+                <div class="anime-poster-full" style="background-image: url('{{ poster_url }}'), linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="poster-overlay"></div>
+                </div>
+            {% else %}
+                <div class="anime-poster-full" style="background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="poster-overlay"></div>
+                    <div class="no-poster-text">Постер недоступен</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Voice Acting Selection -->
+        <div class="voice-acting-section">
+            <h3>Выберите озвучку</h3>
+            <div class="voice-select-wrapper">
+                <select id="voiceSelect" class="voice-select">
+                    {% for trans in massTranslate %}
+                    <option value="{{ trans.translation_id }}">
+                        🎵 {{ trans.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="select-arrow">▼</div>
+            </div>
+        </div>
+
+        <!-- video -->
+        <div class="video-container">
+            <div class="video-wrapper">
+                <video controls crossorigin playsinline id="player">
+                    <source id="srAddLink" src="{{ jsVideo.linkVideo }}" type="video/mp4" size="720"/>
+                </video>
+            </div>
+        </div>
+
+        <!-- Episode Carousel -->
+        <div class="episode-carousel-section">
+            <h3>Выберите серию</h3>
+            <div class="episode-carousel">
+                {% for episode_num in range(1, 14) %}
+                <div class="episode-item" data-episode="{{ episode_num }}">
+                    <div class="episode-number">{{ episode_num }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Anime Meta Section -->
+        <div class="anime-meta-section">
+            <div class="anime-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Тип:</span>
+                    <span class="meta-value">{{ anime.type or 'Не указан' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Статус:</span>
+                    <span class="meta-value">{{ anime.status or 'Не указан' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Эпизоды:</span>
+                    <span class="meta-value">{{ anime.episodes or 'Не указано' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Длительность:</span>
+                    <span class="meta-value">{{ anime.episode_duration or 'Не указана' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Рейтинг:</span>
+                    <span class="meta-value">{{ anime.rating or 'Не указан' }}</span>
+                </div>
+                {% if anime.score %}
+                <div class="meta-item">
+                    <span class="meta-label">Оценка:</span>
+                    <span class="meta-value">{{ anime.score }}/10</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Genres -->
+        {% if anime.genres %}
+        <div class="genres-section">
+            <h3>Жанры</h3>
+            <div class="genres-list">
+                {% for genre in anime.genres %}
+                <span class="genre-tag">{{ genre }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+
+
+        <!-- Description -->
+        {% if anime.description %}
+        <div class="description-section">
+            <h3>Описание</h3>
+            <div class="description-text">{{ anime.description }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Staff -->
+        {% if additional.staff %}
+        <div class="staff-section">
+            <h3>Авторы</h3>
+            <div class="staff-list">
+                {% for person in additional.staff[:10] %}
+                <div class="staff-item">
+                    <div class="staff-name">{{ person.name }}</div>
+                    <div class="staff-roles">
+                        {% for role in person.roles %}
+                        <span class="role-tag">{{ role }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Characters -->
+        {% if additional.main_characters %}
+        <div class="characters-section">
+            <h3>Главные персонажи</h3>
+            <div class="characters-grid">
+                {% for char in additional.main_characters[:12] %}
+                <div class="character-card">
+                    <div class="character-image">
+                        <img src="{{ char.picture }}" alt="{{ char.name }}" onerror="this.src='/static/images/no-image.png'">
+                    </div>
+                    <div class="character-name">{{ char.name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="error-section">
+            <div class="error-icon">😞</div>
+            <h3>Аниме не найдено</h3>
+            <p>Информация об этом аниме временно недоступна.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="/" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <span class="nav-label">Главная</span>
+        </a>
+        <a href="/mobile-search" class="nav-item">
+            <div class="nav-icon">🔍</div>
+            <span class="nav-label">Поиск</span>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">⭐</div>
+            <span class="nav-label">Избранное</span>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <span class="nav-label">Профиль</span>
+        </a>
+    </nav>
+
+    <style>
+        .anime-detail-section {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .anime-title-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .anime-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffff;
+            margin: 0 0 10px 0;
+            line-height: 1.2;
+        }
+
+        .anime-original-title {
+            font-size: 16px;
+            color: #666;
+            margin: 0;
+            font-style: italic;
+        }
+
+        .anime-poster-section {
+            margin-bottom: 25px;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+        }
+
+        .anime-poster-full {
+            width: 100%;
+            height: 60vh;
+            min-height: 300px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .poster-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,107,157,0.1) 0%, rgba(255,107,157,0.05) 100%);
+        }
+
+        .no-poster-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        .anime-meta-section {
+            padding: 0 20px;
+            margin-bottom: 25px;
+        }
+
+        .anime-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            display: block;
+            font-size: 12px;
+            color: #e0e0e0;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+        .anime-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+        }
+
+        .meta-label {
+            font-weight: 500;
+            color:rgb(255, 255, 255);
+        }
+
+        .meta-value {
+            color: #e0e0e0;
+        }
+
+        .genres-section, .description-section, .staff-section, .characters-section {
+            margin-bottom: 25px;
+        }
+
+        .genres-section h3, .description-section h3, .staff-section h3, .characters-section h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #e0e0e0;
+        }
+
+        .genres-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .genre-tag {
+            background: #ff6b9d;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .description-text {
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .staff-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .staff-item {
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .staff-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .staff-roles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .role-tag {
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 11px;
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+
+        .character-card {
+            text-align: center;
+        }
+
+        .character-image img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .character-name {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #ffffff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .error-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .error-section h3 {
+            margin-bottom: 10px;
+        }
+
+        .error-section p {
+            color: #666;
+        }
+
+        .anime-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .anime-card-link:hover .anime-card {
+            transform: translateY(-2px);
+        }
+
+        /* Voice Acting Selection Styles */
+        .voice-acting-section {
+            margin-bottom: 25px;
+        }
+
+        .voice-acting-section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        .voice-select-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .voice-select {
+            width: 100%;
+            padding: 15px 45px 15px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .voice-select:focus {
+            outline: none;
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.1);
+        }
+
+        .voice-select:hover {
+            background: rgba(255, 107, 157, 0.08);
+        }
+
+        .voice-select option {
+            background: #2a2a2a;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff6b9d;
+            font-size: 14px;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+        }
+
+        /* Episode Carousel Styles */
+        .episode-carousel-section {
+            margin-bottom: 25px;
+        }
+
+        .episode-carousel-section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        .episode-carousel {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .episode-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .episode-item {
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 107, 157, 0.1);
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .episode-item:hover {
+            background: rgba(255, 107, 157, 0.2);
+            border-color: #ff6b9d;
+            transform: scale(1.05);
+        }
+
+        .episode-item.active {
+            background: #ff6b9d;
+            border-color: #ff6b9d;
+        }
+
+        .episode-number {
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+    </style>
+
+    {% comment %} <script src="{{ url_for('static', filename='js/mobile.js') }}"></script> {% endcomment %}
+    <script src="static/js/mobile.js"></script>
+
+    <script>
+        // Voice Acting Selection Functionality
+        const voiceSelect = document.getElementById('voiceSelect');
+        var opSel = voiceSelect.options;
+
+
+        function setSelect(idTrans){
+            for (let i = 0; i < opSel.length; i++) {
+                if (opSel[i].value == idTrans){
+                    voiceSelect.selectedIndex = i;
+                }
+              }
+        }
+
+
+        // Глобальные переменные для отслеживания выбора
+        let currentEpisode = {{ jsVideo.numSer }}; // Текущая выбранная серия
+        let currentVoiceActing = setSelect({{ jsVideo.idTrans }}); // Индекс текущей выбранной озвучки
+
+       
+
+        // Обработчик изменения выбора озвучки
+        voiceSelect.addEventListener('change', function() {
+            const selectedOption = voiceSelect.options[voiceSelect.selectedIndex];
+            const voiceText = selectedOption.textContent.replace('🎵 ', '').replace('🎌 ', '').replace('🇺🇸 ', '').replace('📝 ', '').replace('👥 ', '');
+            
+            currentVoiceActing = selectedOption.value;
+            
+            console.log('Выбрана озвучка:', voiceText, '- Индекс:', voiceSelect.selectedIndex);
+
+            // Обновляем видео при изменении озвучки
+            updateVideoSource();
+        });
+
+
+
+        // Инициализация
+        console.log('Select озвучки готов к работе');
+
+        // Episode Carousel Functionality
+        const episodeItems = document.querySelectorAll('.episode-item');
+        const episodeCarousel = document.querySelector('.episode-carousel');
+
+        episodeItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                episodeItems.forEach(el => el.classList.remove('active'));
+                // Add active class to clicked item
+                this.classList.add('active');
+
+                const episodeNumber = parseInt(this.dataset.episode);
+                currentEpisode = episodeNumber;
+                console.log('Выбрана серия:', currentEpisode);
+
+                // Прокрутка выбранной серии к центру
+                setTimeout(() => {
+                    this.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'center'
+                    });
+                }, 100);
+
+                // Обновляем видео при изменении серии
+                updateVideoSource();
+            });
+        });
+
+        // Автоматически активировать выбранную серию при загрузке
+        if (episodeItems.length > 0) {
+            // Убираем активный класс со всех серий
+            episodeItems.forEach(item => item.classList.remove('active'));
+            // Активируем выбранную серию
+            const activeEpisode = document.querySelector(`.episode-item[data-episode="${currentEpisode}"]`);
+            if (activeEpisode) {
+                activeEpisode.classList.add('active');
+                // Прокручиваем к активной серии
+                setTimeout(() => {
+                    activeEpisode.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'center'
+                    });
+                }, 100);
+            }
+        }
+
+
+        // Устанавливаем выбранную озвучку
+
+           
+        
+        console.log(voiceSelect.selectedIndex)
+
+        // Функция для обновления источника видео
+        function updateVideoSource() {
+            const videoSource = document.getElementById('srAddLink');
+            const videoPlayer = document.getElementById('player');
+
+            console.log('Обновление видео: серия', currentEpisode, 'озвучка', voiceSelect.selectedIndex);
+
+            // Получаем текущие параметры URL
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Получаем idTrans из массива massTranslate (передаваемого из бэкенда)
+            const massTranslateData = {{ massTranslate|tojson }};
+            const selectedTranslation = massTranslateData[voiceSelect.selectedIndex];
+            const idTrans = selectedTranslation ? selectedTranslation.translation_id : null;
+
+            console.log('Текущие настройки:');
+            console.log('- Серия:', currentEpisode);
+            console.log('- Озвучка индекс:', voiceSelect.selectedIndex);
+            console.log('- ID перевода:', idTrans);
+            console.log('- Озвучка текст:', voiceSelect.options[voiceSelect.selectedIndex]?.textContent?.replace('🎵 ', '').replace('🎌 ', '').replace('🇺🇸 ', '').replace('📝 ', '').replace('👥 ', ''));
+
+            // Делаем редирект с параметрами
+            if (idTrans) {
+                const newUrl = `${window.location.pathname}?idTrans=${idTrans}&numSer=${currentEpisode}`;
+                console.log('Редирект на:', newUrl);
+                window.location.href = newUrl;
+            } else {
+                console.error('Не удалось получить ID перевода');
+            }
+        }
+
+        // Функция для получения текущих настроек (может пригодиться для отладки)
+        function getCurrentSettings() {
+            return {
+                episode: currentEpisode,
+                voiceActing: voiceSelect.selectedIndex,
+                voiceActingText: voiceSelect.options[voiceSelect.selectedIndex]?.textContent?.replace('🎵 ', '').replace('🎌 ', '').replace('🇺🇸 ', '').replace('📝 ', '').replace('👥 ', '')
+            };
+        }
+
+        // Делаем функцию доступной глобально для отладки
+        window.getCurrentSettings = getCurrentSettings;
+        window.updateVideoSource = updateVideoSource;
+        
+    </script>
+
+
+
+
+</body>
+</html>

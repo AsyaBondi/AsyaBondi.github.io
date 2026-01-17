@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#ff6b9d">
     <title>Поиск аниме - Asya Anime</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    {% comment %} <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}"> {% endcomment %}
+    <link rel="stylesheet" href="stati/ccss/mobile.css">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <!-- Telegram WebApp SDK -->
@@ -217,6 +218,6 @@
         });
     </script>
 
-    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
+    <script src="stati/js/mobile.js"></script>
 </body>
 </html>
